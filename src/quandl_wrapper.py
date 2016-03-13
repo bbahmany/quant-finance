@@ -43,12 +43,3 @@ def get_adj_close(tickers, start, end="", ratios=[], log_transforms=[]):
             print('ERROR:', log_transform, 'is not in the list of specified tickers')
     
     return pd.DataFrame(result).dropna() # drop na here because of differences in lenght of history for stocks
-
-def get_lagged_series(series, order=1, log=False):
-    lagged = None
-    if log:
-        lagged = np.log(series).diff(order).dropna();
-    else:
-        lagged = series.diff(order).dropna();
-    
-    return lagged

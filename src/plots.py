@@ -4,13 +4,21 @@ import matplotlib.pyplot as plt
 from matplotlib.dates import *
 import seaborn as sns
 import statsmodels.api as sm
-from helpers import *
 
 sns.set_style("whitegrid", {'axes.edgecolor': '.6', 
                             'axes.facecolor': '0.9', 
                             'grid.color': '.82', 
                             'legend.frameon': True,
                             'axes.labelsize': 'small'})
+
+def get_lagged_series(series, order=1, log=False):
+    lagged = None
+    if log:
+        lagged = np.log(series).diff(order).dropna();
+    else:
+        lagged = series.diff(order).dropna();
+    
+    return lagged
 
 def plot_stocks(index, stocks, labels, positions=None, label_annually=True):
     """
