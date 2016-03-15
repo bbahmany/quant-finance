@@ -67,14 +67,12 @@ def plot_lagged_series(series, order=1, log=False):
     """
     Plots lagged series
     
-    Args:
-        series (ndarray): time series
-        order (int): the order of the difference
-        log (boolean): whether to log transform before difference
-    
-    Returns (None): plots inline
+    Args: series (ndarray)---time series
+          order (int)--------the order of the difference
+          log (boolean)------whether to log transform before difference
+    Returns: (None) plots inline
     """
-    plt.figure(figsize=(8,4));
+    plt.figure(figsize=(12,4));
     plt.xlabel('Time Index');
     plt.ylabel('Difference');
     
@@ -87,19 +85,106 @@ def plot_lagged_series(series, order=1, log=False):
         
     plt.plot(np.arange(0,lagged.size,1), lagged);
 
-def plot_correlograms(series, limit=50):
+def plot_correlograms(series, limit=20):
+    """
+    Plots autocorrelations
+    
+    Args: series (ndarray)---the time series to view plots for
+          limit (ndarry)-----the number of lags to see
+    Returns: (None) plots inplace
+    """
+    
     fig = plt.figure(figsize=(15,8));
+    fig.subplots_adjust(hspace=.5)
     ax1 = fig.add_subplot(211);
     fig = sm.graphics.tsa.plot_acf(series, lags=limit, ax=ax1);
     plt.title('Correlogram');
     plt.xticks(np.arange(0,limit+1,1))
     plt.xlim([-1,limit])
+    plt.xlabel('Lag')
+    plt.ylabel('Autocorrelation')
     
     ax2 = fig.add_subplot(212);
     fig = sm.graphics.tsa.plot_pacf(series, lags=limit, ax=ax2);
     plt.title('Partial Correlogram');
     plt.xticks(np.arange(0,limit+1,1))
     plt.xlim([-1,limit])
+    plt.xlabel('Lag')
+    plt.ylabel('Partial Autocorrelation')
+    
+def plot_pair(series1, series2, names):
+    """
+    Plot pair series with name subsitutions
+    
+    Args: series1 (ndarray)---first stock of the pair
+          series2 (ndarray)---second stock of the pair
+          names (list)--------list of names for the stocks
+    Returns: (None) plots inline
+    """
+    
+    fig, ax = plt.subplots(figsize=(20,8));
+    years = YearLocator();
+    yearsFmt = DateFormatter('%Y');
+    
+    ax.xaxis.set_major_locator(years);
+    ax.xaxis.set_major_formatter(yearsFmt);
+    ax.autoscale_view();
+    
+    index = series1.index
+    
+    plt.title(names[0] + ' and ' + 
+              names[1] +' (Adj. Close)', fontsize=20);
+    plt.ylabel('Adj. Close', fontsize=15);
+    plt.xlabel('Time', fontsize=15);
+    
+    ax.plot_date(index, series1, 'indianred', label=names[0]);
+    ax.plot_date(index, series2, 'steelblue', label=names[1]);
+ 
+    plt.legend(loc=2, prop={'size':15}, frameon=True);
+    
+def plot_ratio(ratio, name, deviations=[1], positions=[]):
+    """
+    Plots the ratio of the stocks
+    
+    Args: ratio (ndarray)----the ratio of the stocks in question
+          name (string)------the name of the ratio
+          devations (list)---the devations to plot
+          positions (list)---the positions to plot
+    Returns: (None) plots inplace
+    """
+    fig = plt.subplots(figsize=(20,8));
 
-
+    plt.title('Ratio ' + name + ' Adjusted Close', fontsize=20);
+    plt.ylabel('Ratio', fontsize=15);
+    plt.xlabel('Time Index', fontsize=15);
+    plt.xlim([0,ratio.size])
+    plt.xticks(np.arange(0, ratio.size, 500))
+    
+    plt.plot(np.arange(ratio.size), ratio, 'black', label='$Ratio$', alpha=0.5);
+    plt.plot([0, ratio.size], [ratio.mean(), ratio.mean()], 'steelblue', lw=2, label=r'$\hat{\mu}$');
+    
+    for color, std in zip(['y','orange','salmon','red'], deviations):
+        latex_prep = '$' + str(std) + '$'
+        plt.plot([0, ratio.size], [ratio.mean()-std*ratio.std(), ratio.mean()-std*ratio.std()], 
+                 '--', lw=2, label='$\hat{\mu} \pm$' + latex_prep + '$\hat{\sigma}$', color=color);
+        plt.plot([0, ratio.size], [ratio.mean()+std*ratio.std(), ratio.mean()+std*ratio.std()], 
+                 '--', lw=2, color=color);
+    
+    if positions:
+        opening_days, closing_days = [], []
+        opening_ratios, closing_ratios = [], []
+        
+        for position in positions:
+            if 'open' in position.keys():
+                for day in position['open']:
+                    opening_days.append(day)
+                    opening_ratios.append(ratio.ix[day])
+            if 'close' in position.keys():
+                closing_days.append(position['close'])
+                closing_ratios.append(ratio.ix[position['close']])
+            
+        plt.scatter(x=opening_days, y=opening_ratios, s=125, color='lime', edgecolor='black', label='$Open$ '+'$Position$')
+        plt.scatter(x=closing_days, y=closing_ratios, s=125, color='red', edgecolor='black', label='$Close$ '+'$Position$')
+    
+    plt.legend(loc='best', prop={'size':15}, frameon=True);
 
