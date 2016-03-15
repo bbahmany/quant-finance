@@ -174,7 +174,7 @@ def plot_simulated_forcast(series, window, ahead, train_on=None, n=10):
     plt.plot(train_x_space, series)
     for _ in range(n):
         walk = simulate_random_walk(series[:train_on], window, ahead)
-        plt.plot(test_x_space, walk, linestyle='-', color='salmon', alpha=0.7)
+        plt.plot(test_x_space, walk, linestyle='-', color='pink', alpha=0.8)
     
     plt.xlabel('Time Index (Days)');
     plt.ylabel('Adjusted Close Price');
