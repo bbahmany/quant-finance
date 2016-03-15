@@ -1,3 +1,5 @@
+00-Introduction.ipynb
+05-Presentation.ipynb
 *.pyc
 ./src/__pychache__/*
 qf-env/
