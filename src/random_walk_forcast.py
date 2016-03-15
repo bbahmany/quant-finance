@@ -27,15 +27,14 @@ def mle_log_norm(data, init_theta=[1,1]):
     fit = opt.minimize(neg_log_llh, init_theta, data, method='Nelder-Mead')
     return fit.x
 
-def get_lagged_returns(window):
+def get_daily_return_ratio(series):
     """
     Args: series (ndarray)----the time series to get the lagged return ratios
           window_size (int)---number of trading weeks to use
-        
-    Return (ndarray): y(t)/y(t-1) over the weeks specified
+    Return: (ndarray) y(t)/y(t-1) over the weeks specified
     """
 
-    return (window[1:]/window[:-1])
+    return (series[1:]/series[:-1])
 
 def simulate_random_walk(series, window_size=10, ahead=50):
     """
@@ -50,7 +49,7 @@ def simulate_random_walk(series, window_size=10, ahead=50):
     window = series[-((window_size*5)+1):].values
 
     for step in range(ahead):
-        mu, sigma2 = mle_log_norm( get_lagged_returns(window) )
+        mu, sigma2 = mle_log_norm( get_daily_return_ratio(window) )
         forcast = window[-1]*np.random.lognormal(mu, np.sqrt(sigma2), 1)
         forcasts[step] = forcast
         window = np.roll(window, -1)
@@ -73,13 +72,11 @@ def get_expected_walk(series, window_size=10, ahead=50):
     window = series[-((window_size*5)+1):].values
 
     for step in range(ahead):
-        mu, sigma2 = mle_log_norm( get_lagged_returns(window) )
+        mu, sigma2 = mle_log_norm( get_daily_return_ratio(window) )
         E_Xs[step] = last_price * get_expected_value(mu, sigma2)
         V_Xs[step] = get_k_step_variance(mu, sigma2, step+1, yt)
         last_price = last_price * get_expected_value(mu, sigma2)
-#         window = np.roll(window, -1)
-#         window[-1] = means[step]
-
+        
     return E_Xs, V_Xs
 
 def get_expected_value(mu, sigma2):
@@ -114,7 +111,7 @@ def get_k_step_variance(mu, sigma2, k, yt):
           sigma2 (float)---parameter sigma squared
           k (int)----------number of steps ahead
           yt (float)-------price at time t (end of sample)
-    
+          
     Returns: variance (float) of the log normal
     """
     
@@ -129,7 +126,7 @@ def plot_expected_forcast(series, window, ahead, train_on=None, error=2):
           ahead (int)--------number of days to forcast for
           train_on (int)-----optional, number of days from series to use to forcast
           error (int)--------number of standard devations to use for confidence bands
-    
+          
     Returns: None, plots inline
     """
     

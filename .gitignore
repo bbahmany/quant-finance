@@ -1,3 +1,4 @@
+*.pyc
 ./src/__pychache__/*
 qf-env/
 .ipynb_checkpoints/
