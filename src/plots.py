@@ -24,12 +24,11 @@ def plot_stocks(index, stocks, labels, positions=None, label_annually=True):
     """
     Plots up to 5 stocks
     
-    Args:
-        index (DateTimeIndex): date range
-        stocks (list): list of stocks to plot
-        labels (list): labels to use for plotting
-        positions (list of dicts): optional postions to overplot
-        label_annually (boolean): plots x label monthly if false, annually otherwise
+    Args: index (DateTimeIndex): date range
+          stocks (list): list of stocks to plot
+          labels (list): labels to use for plotting
+          positions (list of dicts): optional postions to overplot
+          label_annually (boolean): plots x label monthly if false, annually otherwise
         
     Returns (None): Will output plot inline
     """
